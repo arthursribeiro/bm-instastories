@@ -18,11 +18,11 @@ $app->get('/[{name}]', function ($request, $response, $args) {
 
 $app->post('/getInstaStories', function (Slim\Http\Request $request, Slim\Http\Response $response) {
     try {
-        $ig = new \InstagramAPI\Instagram();
-        $ig->setUser("bm.insta.ponto", "entrando21");
-        $loginResponse = $ig->login();
-
         $parsedBody = $request->getParsedBody();
+
+        $ig = new \InstagramAPI\Instagram();
+        $ig->setUser($parsedBody["username"], $parsedBody["key"]);
+        $loginResponse = $ig->login();
         $instagram_username = $parsedBody["user"];
         
         $userId = $ig->getUsernameId($instagram_username);
