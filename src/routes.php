@@ -7,6 +7,8 @@ use Slim\Http\UploadedFile;
 
 $container = $app->getContainer();
 $container['upload_directory'] = __DIR__ . '/uploads';
+$container['cipher_key'] = "x1Fx9EzxACxA1npbxAFnxE86x17~x1Cx";
+$container['cipher_iv'] = "x03x00ZxA9x91ixB";
 
 $app->get('/[{name}]', function ($request, $response, $args) {
     // Sample log message
@@ -20,8 +22,15 @@ $app->post('/getInstaStories', function (Slim\Http\Request $request, Slim\Http\R
     try {
         $parsedBody = $request->getParsedBody();
 
+        $encryted_password = base64_decode($parsedBody["key"]);
+        $password = openssl_decrypt($encryted_password, 'AES-128-CBC', $this->get('cipher_key'), OPENSSL_RAW_DATA, $this->get('cipher_iv'));
+
+        if(!$password) {
+            throw new InstagramAPI\Exception\RequestException('Invalid key value');
+        }
+
         $ig = new \InstagramAPI\Instagram();
-        $ig->setUser($parsedBody["username"], $parsedBody["key"]);
+        $ig->setUser($parsedBody["username"], $password);
         $loginResponse = $ig->login();
         $instagram_username = $parsedBody["user"];
         
