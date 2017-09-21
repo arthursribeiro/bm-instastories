@@ -7,8 +7,6 @@ use Slim\Http\UploadedFile;
 
 $container = $app->getContainer();
 $container['upload_directory'] = __DIR__ . '/uploads';
-$container['cipher_key'] = "x1Fx9EzxACxA1npbxAFnxE86x17~x1Cx";
-$container['cipher_iv'] = "x03x00ZxA9x91ixB";
 
 $app->get('/[{name}]', function ($request, $response, $args) {
     // Sample log message
@@ -21,35 +19,9 @@ $app->get('/[{name}]', function ($request, $response, $args) {
 $app->post('/getInstaStories', function (Slim\Http\Request $request, Slim\Http\Response $response) {
     try {
         $parsedBody = $request->getParsedBody();
-
-        $encryted_password = base64_decode($parsedBody["key"]);
-        $password = openssl_decrypt($encryted_password, 'AES-128-CBC', $this->get('cipher_key'), OPENSSL_RAW_DATA, $this->get('cipher_iv'));
-
-        if(!$password) {
-            throw new InstagramAPI\Exception\RequestException('Invalid key value');
-        }
-
-        $ig = new \InstagramAPI\Instagram();
-        $ig->setUser($parsedBody["username"], $password);
-        $loginResponse = $ig->login();
-        $instagram_username = $parsedBody["user"];
-        
-        $userId = $ig->getUsernameId($instagram_username);
-        $stories = $ig->getUserStoryFeed($userId);
-
-        $ig->logout();
-
-        $response_data = array(
-            "STATUS" => "OK",
-            "RESPONSE" => $stories->getFullResponse()
-        );
-        return $response->withJson($response_data);
-    } catch (InstagramAPI\Exception\RequestException $e) {
-        $response_data = array(
-            "STATUS" => "ERROR",
-            "MESSAGE" => $e->getMessage()
-        );
-        return $response->withJson($response_data, 400);
+        return $response->withJson(InstastoriesController::getInstaStoriesForUser($parsedBody["username"], $parsedBody["key"], $parsedBody["user"]));
+    } catch (InstastoriesException $e) {
+        return $response->withJson($e->getResponseData(), 400);
     }
 });
 

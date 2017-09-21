@@ -24,6 +24,12 @@ require __DIR__ . '/../src/dependencies.php';
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
 
+// Register exceptions
+require __DIR__ . '/../src/exceptions.php';
+
+// Register controllers
+require __DIR__ . '/../src/controllers.php';
+
 // Register routes
 require __DIR__ . '/../src/routes.php';
 
