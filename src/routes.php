@@ -30,7 +30,7 @@ $app->post('/postInstaStory', function ($request, $response, $args) {
         $directory = $this->get('upload_directory');
         var_dump($directory);
         $ig = new \InstagramAPI\Instagram();
-        $ig->setUser("bm.insta.ponto", "entrando2123");
+        $ig->setUser("bm.insta.ponto", "entrando2");
         $loginResponse = $ig->login();
 
         $uploadedFiles = $request->getUploadedFiles();
@@ -39,11 +39,10 @@ $app->post('/postInstaStory', function ($request, $response, $args) {
         }
 
         $uploadedFile = $uploadedFiles['storyPicture'];
-        $metadata = ['caption' => 'My awesome caption'];
 
         if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
             $filename = moveUploadedFile($directory, $uploadedFile);
-            $ig->uploadStoryPhoto("$directory/$filename", $metadata);
+            $ig->uploadStoryPhoto("$directory/$filename", []);
         }
 
         $ig->logout();
