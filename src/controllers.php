@@ -6,8 +6,7 @@ class InstastoriesController {
 
     public static function getInstaStoriesForUser($loggedInUsername, $loggedInEncryptedPassword, $userToQuery, $retry=false) {
         try {
-            $encryted_password = base64_decode($loggedInEncryptedPassword);
-            $password = openssl_decrypt($encryted_password, 'AES-128-CBC', self::$cipher_key, OPENSSL_RAW_DATA, self::$cipher_iv);
+            $password = self::decryptBase64EncryptedPassword($loggedInEncryptedPassword);
     
             if(!$password) {
                 throw new InstagramAPI\Exception\RequestException('Invalid key value');
@@ -29,10 +28,10 @@ class InstastoriesController {
             );
             return $response_data;
         } catch (InstagramAPI\Exception\RequestException $e) {
-            if(!$retry) {
-                sleep(6);
-                return self::getInstaStoriesForUser($loggedInUsername, $loggedInEncryptedPassword, $userToQuery, true);
-            } 
+            // if(!$retry) {
+            //     sleep(6);
+            //     return self::getInstaStoriesForUser($loggedInUsername, $loggedInEncryptedPassword, $userToQuery, true);
+            // } 
 
             $response_data = array(
                 "STATUS" => "ERROR",
@@ -41,6 +40,13 @@ class InstastoriesController {
 
             throw new InstastoriesException($response_data);
         }
+    }
+
+    private static function decryptBase64EncryptedPassword($base64EncodedEncryptedPassword) {
+        $encryted_password = base64_decode($base64EncodedEncryptedPassword);
+        $password = openssl_decrypt($encryted_password, 'AES-128-CBC', self::$cipher_key, OPENSSL_RAW_DATA, self::$cipher_iv);
+
+        return $password;
     }
 }
 
