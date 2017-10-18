@@ -27,36 +27,24 @@ $app->post('/getInstaStories', function (Slim\Http\Request $request, Slim\Http\R
 
 $app->post('/postInstaStory', function ($request, $response, $args) {
     try {
-        $directory = $this->get('upload_directory');
-        var_dump($directory);
-        $ig = new \InstagramAPI\Instagram();
-        $ig->setUser("bm.insta.ponto", "entrando2");
-        $loginResponse = $ig->login();
-
+        $username = $request->getParam('username');
+        $key = $request->getParam('key');
         $uploadedFiles = $request->getUploadedFiles();
         if (empty($uploadedFiles['storyPicture'])) {
-            throw new Exception('Expected a storyPicture');
+            throw new InstagramAPI\Exception\RequestException('Expected a storyPicture');
         }
 
         $uploadedFile = $uploadedFiles['storyPicture'];
 
-        if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-            $filename = moveUploadedFile($directory, $uploadedFile);
-            $ig->uploadStoryPhoto("$directory/$filename", []);
-        }
-
-        $ig->logout();
-
-        $response_data = array(
-            "STATUS" => "OK"
-        );
-        return $response->withJson($response_data);
+        return $response->withJson(InstastoriesController::postInstaStory($username, $key, $uploadedFile));
     } catch (InstagramAPI\Exception\RequestException $e) {
         $response_data = array(
             "STATUS" => "ERROR",
             "MESSAGE" => $e->getMessage()
         );
         return $response->withJson($response_data, 400);
+    } catch (InstastoriesException $e) {
+        return $response->withJson($e->getResponseData(), 400);
     }
 });
 
