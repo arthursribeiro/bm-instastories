@@ -45,6 +45,12 @@ $app->post('/postInstaStory', function ($request, $response, $args) {
         return $response->withJson($response_data, 400);
     } catch (InstastoriesException $e) {
         return $response->withJson($e->getResponseData(), 400);
+    } catch (InvalidArgumentException $e) {
+        $response_data = array(
+            "STATUS" => "ERROR",
+            "MESSAGE" => $e->getMessage()
+        );
+        return $response->withJson($response_data, 400);
     }
 });
 
