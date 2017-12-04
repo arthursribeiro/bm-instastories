@@ -14,12 +14,11 @@ class InstastoriesController {
             }
     
             $ig = new \InstagramAPI\Instagram();
-            $ig->setUser($loggedInUsername, $password);
-            $loginResponse = $ig->login();
+            $loginResponse = $ig->login($loggedInUsername, $password);
             $instagram_username = $userToQuery;
             
-            $userId = $ig->getUsernameId($instagram_username);
-            $stories = $ig->getUserStoryFeed($userId);
+            $userId = $ig->people->getUserIdForName($instagram_username);
+            $stories = $ig->story->getUserReelMediaFeed($userId);
     
             $ig->logout();
     
@@ -52,14 +51,13 @@ class InstastoriesController {
             }
     
             $ig = new \InstagramAPI\Instagram();
-            $ig->setUser($loggedInUsername, $password);
-            $loginResponse = $ig->login();
+            $loginResponse = $ig->login($loggedInUsername, $password);
 
             $directory = self::$upload_directory;
     
             if ($fileToPost->getError() === UPLOAD_ERR_OK) {
                 $filename = moveUploadedFile($directory, $fileToPost);
-                $ig->uploadStoryPhoto("$directory/$filename", []);
+                $ig->story->uploadPhoto("$directory/$filename", []);
             }
     
             $ig->logout();
