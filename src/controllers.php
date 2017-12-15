@@ -1,6 +1,6 @@
 <?php
 
-class InstastoriesController {
+class InstagramController {
     private static $cipher_key = "x1Fx9EzxACxA1npbxAFnxE86x17~x1Cx";
     private static $cipher_iv = "x03x00ZxA9x91ixB";
     private static $upload_directory = __DIR__ . '/uploads';
@@ -73,6 +73,47 @@ class InstastoriesController {
             );
 
             throw new InstastoriesException($response_data);
+        }
+    }
+
+    public static function postInstagramMedia($loggedInUsername, $loggedInEncryptedPassword, $fileToPost, $mediaDescription) {
+        try {
+            $password = self::decryptBase64EncryptedPassword(stripcslashes($loggedInEncryptedPassword));
+            
+            if(!$password) {
+                throw new InstagramAPI\Exception\RequestException('Invalid key value');
+            }
+    
+            $ig = new \InstagramAPI\Instagram();
+            $loginResponse = $ig->login($loggedInUsername, $password);
+
+            $directory = self::$upload_directory;
+    
+            if ($fileToPost->getError() === UPLOAD_ERR_OK) {
+                // if you want only a caption, you can simply do this:
+                $filename = moveUploadedFile($directory, $fileToPost);
+                
+                $metadata = [];
+                if($mediaDescription) {
+                    $metadata = ['caption' => $mediaDescription];
+                }
+                 
+                $ig->timeline->uploadPhoto("$directory/$filename", $metadata);
+            }
+    
+            $ig->logout();
+    
+            $response_data = array(
+                "STATUS" => "OK"
+            );
+            return $response_data;
+        } catch (InstagramAPI\Exception\RequestException $e) {
+            $response_data = array(
+                "STATUS" => "ERROR",
+                "MESSAGE" => $e->getMessage()
+            );
+
+            throw new InstagramException($response_data);
         }
     }
 
