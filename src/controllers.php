@@ -117,6 +117,33 @@ class InstagramController {
         }
     }
 
+    public static function instagramLogin($loggedInUsername, $loggedInEncryptedPassword) {
+        try {
+            $password = self::decryptBase64EncryptedPassword(stripcslashes($loggedInEncryptedPassword));
+            
+            if(!$password) {
+                throw new InstagramAPI\Exception\RequestException('Invalid key value');
+            }
+    
+            $ig = new \InstagramAPI\Instagram();
+            $loginResponse = $ig->login($loggedInUsername, $password);
+    
+            $ig->logout();
+    
+            $response_data = array(
+                "STATUS" => "OK"
+            );
+            return $response_data;
+        } catch (InstagramAPI\Exception\RequestException $e) {
+            $response_data = array(
+                "STATUS" => "ERROR",
+                "MESSAGE" => $e->getMessage()
+            );
+
+            throw new InstagramException($response_data);
+        }
+    }
+
     private static function decryptBase64EncryptedPassword($base64EncodedEncryptedPassword) {
         $encryted_password = base64_decode($base64EncodedEncryptedPassword);
         $password = openssl_decrypt($encryted_password, 'AES-128-CBC', self::$cipher_key, OPENSSL_RAW_DATA, self::$cipher_iv);

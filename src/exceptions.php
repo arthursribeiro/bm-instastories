@@ -18,4 +18,7 @@ class InstastoriesException extends Exception {
 
 }
 
+class InstagramException extends InstastoriesException {
+}
+
 ?>

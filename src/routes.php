@@ -83,6 +83,33 @@ $app->post('/postInstagramMedia', function ($request, $response, $args) {
     }
 });
 
+$app->post('/instagramAuthenticate', function ($request, $response, $args) {
+    try {
+        $username = $request->getParam('username');
+        $key = $request->getParam('key');
+
+        if (!$username || !$key) {
+            throw new InstagramAPI\Exception\RequestException('Expected a username and key');
+        }
+
+        return $response->withJson(InstagramController::instagramLogin($username, $key));
+    } catch (InstagramAPI\Exception\RequestException $e) {
+        $response_data = array(
+            "STATUS" => "ERROR",
+            "MESSAGE" => $e->getMessage()
+        );
+        return $response->withJson($response_data, 400);
+    } catch (InstagramException $e) {
+        return $response->withJson($e->getResponseData(), 400);
+    } catch (InvalidArgumentException $e) {
+        $response_data = array(
+            "STATUS" => "ERROR",
+            "MESSAGE" => $e->getMessage()
+        );
+        return $response->withJson($response_data, 400);
+    }
+});
+
 function moveUploadedFile($directory, UploadedFile $uploadedFile)
 {
     $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
