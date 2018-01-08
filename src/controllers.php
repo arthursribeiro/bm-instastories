@@ -131,7 +131,8 @@ class InstagramController {
             $ig->logout();
     
             $response_data = array(
-                "STATUS" => "OK"
+                "STATUS" => "OK",
+                "PROFILE_PIC_URL" => $loginResponse->logged_in_user->profile_pic_url
             );
             return $response_data;
         } catch (InstagramAPI\Exception\RequestException $e) {
