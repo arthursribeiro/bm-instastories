@@ -20,8 +20,6 @@ class InstagramController {
             $userId = $ig->people->getUserIdForName($instagram_username);
             $stories = $ig->story->getUserReelMediaFeed($userId);
     
-            $ig->logout();
-    
             $response_data = array(
                 "STATUS" => "OK",
                 "RESPONSE" => $stories->getFullResponse()
@@ -59,8 +57,6 @@ class InstagramController {
                 $filename = moveUploadedFile($directory, $fileToPost);
                 $ig->story->uploadPhoto("$directory/$filename", []);
             }
-    
-            $ig->logout();
     
             $response_data = array(
                 "STATUS" => "OK"
@@ -101,8 +97,6 @@ class InstagramController {
                 $ig->timeline->uploadPhoto("$directory/$filename", $metadata);
             }
     
-            $ig->logout();
-    
             $response_data = array(
                 "STATUS" => "OK"
             );
@@ -127,8 +121,6 @@ class InstagramController {
     
             $ig = new \InstagramAPI\Instagram();
             $loginResponse = $ig->login($loggedInUsername, $password);
-    
-            $ig->logout();
     
             $response_data = array(
                 "STATUS" => "OK",
